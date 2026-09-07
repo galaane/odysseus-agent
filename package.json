@@ -1,0 +1,50 @@
+{
+  "name": "odysseus-autonomous-browser-agent",
+  "version": "1.0.0",
+  "description": "Autonomous browser agent powered by CloakBrowser and Playwright with Level 5 self-directed web autonomy",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "start-browser": "tsx scripts/start-browser.ts",
+    "start-dashboard": "tsx scripts/start-dashboard.ts",
+    "run-task": "tsx scripts/run-task.ts",
+    "get-otp": "tsx scripts/get-otp.ts",
+    "benchmark:level5": "tsx scripts/benchmark-level5.ts",
+    "watcher": "tsx scripts/manage-watcher.ts",
+    "profile:health": "tsx scripts/profile-health.ts",
+    "topology": "tsx scripts/view-topology.ts"
+  },
+  "keywords": [
+    "autonomous-agent",
+    "browser-agent",
+    "playwright",
+    "cloakbrowser",
+    "stealth-browser",
+    "ai-agent",
+    "level-5-autonomy",
+    "self-healing",
+    "knowledge-graph",
+    "web-automation"
+  ],
+  "author": "Odysseus Project Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "cloakbrowser": "^0.5.10",
+    "dotenv": "^16.4.7",
+    "playwright-core": "^1.49.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

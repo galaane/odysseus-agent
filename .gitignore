@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+
+# Environment and Secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Agent Runtime Data & Persistent Browser Profile
+data/browser-profile/
+data/downloads/
+data/screenshots/
+data/workspace/
+data/logs/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+data/*
+!data/.gitkeep
+
+# Test outputs
+coverage/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+*.log
+
+# Internal Project Specifications & AI Directives (local only)
+phases/
+AGENTS.md
+PROJECT_SPEC.md
+benchmarks/
+
+# Local Drafts, Scratchpads & Personal Notes
+notes/
+scratch/
+*.draft.*
+*.local.*
+
+# IDE & Editor configurations
+.vscode/
+.idea/

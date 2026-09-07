@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odysseus — Autonomous Browser Agent Dashboard</title>
+  <meta name="description" content="Real-time monitoring and control dashboard for the Odysseus autonomous browser agent.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="navbar" id="main-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Odysseus</h1>
+          <span class="subtext">Autonomous Browser Agent</span>
+        </div>
+      </div>
+
+      <div class="navbar-center" id="nav-active-tab-info">
+        <div class="active-tab-pill" id="active-tab-pill">
+          <span class="tab-indicator-icon">🌐</span>
+          <span class="tab-url-text" id="active-tab-url">No Active Webpage</span>
+        </div>
+      </div>
+
+      <div class="navbar-right">
+        <div class="status-badge" id="agent-status-badge">
+          <span class="status-dot pulse" id="status-dot"></span>
+          <span class="status-label" id="agent-status-text">IDLE</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Metrics Bar -->
+    <section class="metrics-bar" id="metrics-bar">
+      <div class="metric-card" id="metric-task">
+        <span class="metric-label">Active Task</span>
+        <span class="metric-value" id="metric-task-id">None</span>
+      </div>
+
+      <div class="metric-card progress-metric" id="metric-steps-card">
+        <div class="progress-labels">
+          <span class="metric-label">Execution Progress</span>
+          <span class="metric-value" id="metric-step-count">0 / 50 Steps</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div class="metric-card" id="metric-findings-card">
+        <span class="metric-label">Findings Verified</span>
+        <span class="metric-value highlight" id="metric-findings-count">0</span>
+      </div>
+
+      <div class="metric-card" id="metric-connection-card">
+        <span class="metric-label">SSE Stream</span>
+        <span class="metric-value sse-connected" id="metric-sse-status">Connecting...</span>
+      </div>
+    </section>
+
+    <!-- HITL Intervention Alert Banner -->
+    <section class="hitl-banner hidden" id="hitl-banner">
+      <div class="hitl-content">
+        <div class="hitl-icon">⚠️</div>
+        <div class="hitl-message">
+          <h3>Human Intervention Required</h3>
+          <p id="hitl-reason">External challenge or verification barrier detected. Please complete it in the browser, then click Resolve & Resume.</p>
+        </div>
+      </div>
+      <div class="hitl-actions">
+        <button type="button" id="btn-resolve-intervention" class="btn btn-warning">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Resolve & Resume Task
+        </button>
+      </div>
+    </section>
+
+    <!-- Dashboard Tabs -->
+    <nav class="dashboard-tabs" id="dashboard-tabs">
+      <button type="button" class="tab-btn active" data-tab="mission-control">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+        </svg>
+        Mission Control
+      </button>
+      <button type="button" class="tab-btn" data-tab="topology">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="6" cy="6" r="3"></circle>
+          <circle cx="6" cy="18" r="3"></circle>
+          <path d="M20 4L8.12 15.88"></path>
+          <circle cx="18" cy="9" r="3"></circle>
+        </svg>
+        Site Topology & KG
+      </button>
+      <button type="button" class="tab-btn" data-tab="macros">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          <path d="M19 3v18"></path>
+        </svg>
+        Workflow Macros
+      </button>
+      <button type="button" class="tab-btn" data-tab="watchers">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        State Watchers
+      </button>
+      <button type="button" class="tab-btn" data-tab="stealth">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        Stealth & Health
+      </button>
+    </nav>
+
+    <!-- Tab 1: Mission Control (Default) -->
+    <div id="tab-mission-control" class="tab-content active">
+      <main class="dashboard-grid">
+        <!-- Left Column: Task Controls & Live Terminal -->
+        <section class="column left-col">
+          <!-- Task Control Card -->
+          <div class="panel card task-panel" id="task-control-panel">
+            <div class="panel-header">
+              <h2>Mission Control</h2>
+              <span class="panel-badge">Autonomous Execution</span>
+            </div>
+
+            <form id="task-form" class="task-form">
+              <div class="form-group">
+                <label for="task-goal-input">Task Goal / Directive</label>
+                <textarea
+                  id="task-goal-input"
+                  placeholder="e.g. Research official pricing for GitHub Enterprise and verify across documentation sources"
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group half">
+                  <label for="task-steps-input">Max Steps</label>
+                  <input type="number" id="task-steps-input" value="30" min="1" max="200" required>
+                </div>
+                <div class="form-group half">
+                  <label for="task-timeout-input">Max Duration (s)</label>
+                  <input type="number" id="task-timeout-input" value="300" min="30" max="3600">
+                </div>
+              </div>
+
+              <div class="action-buttons">
+                <button type="submit" id="btn-submit-task" class="btn btn-primary">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  Launch Task
+                </button>
+                <button type="button" id="btn-cancel-task" class="btn btn-danger" disabled>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  </svg>
+                  Abort Task
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Cognitive Deliberation Card (System 2) -->
+          <div class="panel card deliberation-panel" id="deliberation-panel">
+            <div class="panel-header">
+              <h2>System 2 Deliberation</h2>
+              <span class="deliberation-step-badge" id="deliberation-step-badge">Idle</span>
+            </div>
+            <div class="deliberation-body" id="deliberation-body">
+              <div class="deliberation-empty" id="deliberation-empty">
+                Awaiting agent cognitive deliberation cycle...
+              </div>
+              <div class="deliberation-content hidden" id="deliberation-content">
+                <div class="deliberation-block">
+                  <span class="deliberation-tag tag-obs">Observation Analysis</span>
+                  <p id="delib-obs" class="delib-text">-</p>
+                </div>
+                <div class="deliberation-block">
+                  <span class="deliberation-tag tag-obs-obstacle">Obstacles / Boundaries</span>
+                  <p id="delib-obstacle" class="delib-text">None detected</p>
+                </div>
+                <div class="deliberation-block">
+                  <span class="deliberation-tag tag-alt">Alternatives Considered</span>
+                  <p id="delib-alt" class="delib-text">-</p>
+                </div>
+                <div class="deliberation-block">
+                  <span class="deliberation-tag tag-risk">Risk Assessment</span>
+                  <p id="delib-risk" class="delib-text">-</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Terminal Card -->
+          <div class="panel card terminal-panel" id="terminal-panel">
+            <div class="panel-header">
+              <h2>Live Event Terminal</h2>
+              <div class="terminal-controls">
+                <label class="toggle-container">
+                  <input type="checkbox" id="terminal-autoscroll" checked>
+                  <span>Auto-scroll</span>
+                </label>
+                <button type="button" id="btn-clear-terminal" class="btn-sm">Clear</button>
+              </div>
+            </div>
+
+            <div class="terminal-view" id="terminal-output">
+              <div class="terminal-entry system-message">
+                <span class="time">[System]</span>
+                <span class="msg">Odysseus streaming interface initialized. Awaiting events...</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Column: Visual Preview & Research Findings -->
+        <section class="column right-col">
+          <!-- Visual Viewport Card -->
+          <div class="panel card viewport-panel" id="viewport-panel">
+            <div class="panel-header">
+              <h2>Visual Viewport</h2>
+              <button type="button" id="btn-refresh-screenshot" class="btn-sm btn-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 4v6h-6"></path>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                Snapshot
+              </button>
+            </div>
+
+            <div class="viewport-content" id="viewport-container">
+              <div class="viewport-placeholder" id="viewport-placeholder">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                <span>Live Chromium Viewport</span>
+              </div>
+              <img id="screenshot-img" class="screenshot-img hidden" alt="Agent live screenshot">
+            </div>
+          </div>
+
+          <!-- Research Findings Card -->
+          <div class="panel card findings-panel" id="findings-panel">
+            <div class="panel-header">
+              <h2>Autonomous Research Findings</h2>
+              <span class="findings-badge" id="findings-badge">0 Verified</span>
+            </div>
+
+            <div class="findings-feed" id="findings-feed">
+              <div class="empty-state" id="findings-empty">
+                No research findings captured yet. Launch a research task to see corroborated claims.
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Tab 2: Site Topology & Knowledge Graph -->
+    <div id="tab-topology" class="tab-content hidden">
+      <div class="tab-toolbar">
+        <div class="toolbar-group">
+          <label for="topology-domain-select">Filter Domain:</label>
+          <select id="topology-domain-select" class="form-select">
+            <option value="">All Domains</option>
+          </select>
+        </div>
+        <div class="toolbar-actions">
+          <button type="button" id="btn-refresh-topology" class="btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            Refresh Topology & KG
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Left: Discovered Nodes & Edges -->
+        <section class="column left-col">
+          <div class="panel card" id="topology-nodes-panel">
+            <div class="panel-header">
+              <h2>Discovered Route Nodes</h2>
+              <span class="panel-badge" id="topology-node-count">0 Nodes</span>
+            </div>
+            <div class="panel-scroll-container" id="topology-nodes-list">
+              <div class="empty-state">No topology nodes discovered yet. Execute tasks to build site map.</div>
+            </div>
+          </div>
+
+          <div class="panel card" id="topology-edges-panel">
+            <div class="panel-header">
+              <h2>Navigation Transitions & Edges</h2>
+              <span class="panel-badge" id="topology-edge-count">0 Edges</span>
+            </div>
+            <div class="panel-scroll-container" id="topology-edges-list">
+              <div class="empty-state">No navigation transitions recorded.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right: Knowledge Graph Archetypes -->
+        <section class="column right-col">
+          <div class="panel card" id="kg-archetypes-panel">
+            <div class="panel-header">
+              <h2>Domain Archetypes & Concept Transfer</h2>
+              <span class="panel-badge" id="kg-concept-count">0 Concepts</span>
+            </div>
+            <div class="panel-scroll-container" id="kg-concepts-list">
+              <div class="empty-state">Loading knowledge graph concepts...</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Tab 3: Workflow Macros -->
+    <div id="tab-macros" class="tab-content hidden">
+      <div class="tab-toolbar">
+        <div class="toolbar-group">
+          <h2>Autonomous Workflow Macros</h2>
+          <span class="subtext">Deterministic execution routines & self-healing pipelines</span>
+        </div>
+        <div class="toolbar-actions">
+          <button type="button" id="btn-refresh-macros" class="btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            Refresh Macros
+          </button>
+        </div>
+      </div>
+
+      <div class="macros-grid" id="macros-list">
+        <div class="empty-state">No workflow macros registered yet. The agent distills macros from repeatable verified workflows.</div>
+      </div>
+    </div>
+
+    <!-- Tab 4: State Watchers -->
+    <div id="tab-watchers" class="tab-content hidden">
+      <div class="tab-toolbar">
+        <div class="toolbar-group">
+          <h2>Asynchronous State Watchers</h2>
+          <span class="subtext">Active monitoring daemons with adaptive jitter & DOM polling</span>
+        </div>
+        <div class="toolbar-actions">
+          <button type="button" id="btn-toggle-watcher-form" class="btn btn-primary btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Watcher
+          </button>
+          <button type="button" id="btn-refresh-watchers" class="btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Watcher Form Card (Collapsible) -->
+      <div class="panel card watcher-form-panel hidden" id="watcher-create-card">
+        <div class="panel-header">
+          <h3>Register New State Watcher</h3>
+          <button type="button" id="btn-close-watcher-form" class="btn-close">&times;</button>
+        </div>
+        <form id="watcher-form" class="watcher-form">
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="watcher-name">Watcher Name</label>
+              <input type="text" id="watcher-name" placeholder="e.g. Stock Availability Monitor" required>
+            </div>
+            <div class="form-group half">
+              <label for="watcher-url">Target URL</label>
+              <input type="url" id="watcher-url" placeholder="http://127.0.0.1:8080/products/1" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group third">
+              <label for="watcher-cond-type">Condition Type</label>
+              <select id="watcher-cond-type" class="form-select">
+                <option value="text_contains">Text Contains</option>
+                <option value="element_present">Element Present</option>
+                <option value="element_missing">Element Missing</option>
+                <option value="price_below">Price Below</option>
+                <option value="price_above">Price Above</option>
+                <option value="regex_match">Regex Match</option>
+              </select>
+            </div>
+            <div class="form-group third">
+              <label for="watcher-cond-target">Target Selector / Param</label>
+              <input type="text" id="watcher-cond-target" placeholder="e.g. #stock-badge" required>
+            </div>
+            <div class="form-group third">
+              <label for="watcher-cond-val">Expected Value</label>
+              <input type="text" id="watcher-cond-val" placeholder="e.g. In Stock" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group third">
+              <label for="watcher-trigger-type">Trigger Action</label>
+              <select id="watcher-trigger-type" class="form-select">
+                <option value="notify_hitl">Notify HITL (Intervention)</option>
+                <option value="execute_macro">Execute Workflow Macro</option>
+                <option value="execute_task">Execute Autonomous Task</option>
+              </select>
+            </div>
+            <div class="form-group third">
+              <label for="watcher-interval">Polling Interval (ms)</label>
+              <input type="number" id="watcher-interval" value="10000" min="1000" step="1000">
+            </div>
+            <div class="form-group third checkbox-group">
+              <label class="toggle-container">
+                <input type="checkbox" id="watcher-jitter" checked>
+                <span>Adaptive Jitter (+/- 20%)</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Watcher Daemon</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Watchers List -->
+      <div class="panel card" id="watchers-table-panel">
+        <div class="panel-header">
+          <h2>Active Watcher Daemons</h2>
+          <span class="panel-badge" id="watchers-count">0 Watchers</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table" id="watchers-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Name</th>
+                <th>Target URL</th>
+                <th>Condition</th>
+                <th>Trigger</th>
+                <th>Interval</th>
+                <th>Last Checked</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="watchers-tbody">
+              <tr>
+                <td colspan="8" class="text-center empty-td">No watchers configured yet. Click "New Watcher" to register.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 5: Stealth & Profile Health -->
+    <div id="tab-stealth" class="tab-content hidden">
+      <div class="tab-toolbar">
+        <div class="toolbar-group">
+          <h2>Stealth Chromium Runtime & Profile Health</h2>
+          <span class="subtext">Automated storage sanitization & dynamic hyperparameter optimization</span>
+        </div>
+        <div class="toolbar-actions">
+          <button type="button" id="btn-refresh-stealth" class="btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            Refresh Health
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Left: Profile Storage Health -->
+        <section class="column left-col">
+          <div class="panel card" id="profile-health-panel">
+            <div class="panel-header">
+              <h2>Persistent Profile Storage</h2>
+              <span class="health-status-badge optimal" id="profile-health-badge">OPTIMAL</span>
+            </div>
+            <div class="profile-health-body">
+              <div class="profile-dir-info">
+                <span class="label">Profile Directory:</span>
+                <code id="profile-dir-path" class="code-path">data/browser-profile</code>
+              </div>
+
+              <div class="health-gauges">
+                <div class="gauge-card">
+                  <span class="gauge-label">Total Disk Footprint</span>
+                  <span class="gauge-value" id="profile-disk-usage">0.0 MB</span>
+                </div>
+                <div class="gauge-card">
+                  <span class="gauge-label">Ephemeral Cache</span>
+                  <span class="gauge-value highlight-warning" id="profile-cache-usage">0.0 MB</span>
+                </div>
+                <div class="gauge-card">
+                  <span class="gauge-label">Orphaned Crash Dumps</span>
+                  <span class="gauge-value" id="profile-orphans">0 files</span>
+                </div>
+              </div>
+
+              <div class="maintenance-box">
+                <div class="maintenance-info">
+                  <h4>Safe Cache Purge</h4>
+                  <p>Removes temporary code caches, GPU caches, and crashpad dumps. <strong>Protected:</strong> Cookies, LocalStorage, and session credentials will NOT be touched.</p>
+                </div>
+                <button type="button" id="btn-clean-profile" class="btn btn-warning">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  Purge Ephemeral Cache
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right: Dynamic Hyperparameters -->
+        <section class="column right-col">
+          <div class="panel card" id="hyperparameters-panel">
+            <div class="panel-header">
+              <h2>Domain Hyperparameters</h2>
+              <span class="panel-badge" id="hyperparameters-count">0 Tuned Domains</span>
+            </div>
+            <div class="panel-scroll-container" id="hyperparameters-list">
+              <div class="empty-state">Loading adaptive hyperparameters...</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="/dashboard.js"></script>
+</body>
+</html>
+
